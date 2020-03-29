@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github代理下载</title>
+    <link rel="stylesheet" href="./css/index.css" type="text/css">
+</head>
+<body>
+    <script>
+        function joinMsg(s) {
+            var obj = document.getElementById('msgout');
+            obj.value = obj.value+s + "\n";
+        }
+        function startDowned()
+        {
+            var obj = document.getElementById('msgout');
+            console.log(obj)
+            obj.style.visibility = 'visible';
+            var url = document.getElementById("url").value;
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET","/github/down?url="+url,false);
+            xmlHttp.send();
+            var taskId = xmlHttp.responseText;
+            joinMsg("创建任务:id = " + taskId);
+            var timeId = setInterval
+            (
+                ()=>
+                {
+                    xmlHttp.open("GET","/github/query?id="+taskId,false);
+                    xmlHttp.send();
+                    var status = xmlHttp.responseText;
+                    if(status == 1)
+                    {
+                        clearInterval(timeId);
+                        joinMsg("任务"+taskId+":"+"服务器已下载完成");
+                        window.location.href = "/download?id="+taskId;
+                    }else{
+                        joinMsg("任务"+taskId+":"+"服务器正在下载");
+                    }
+                },1000
+            )
+
+
+        }
+
+        function mouseIn()
+        {
+            var obj = document.getElementById('url');
+            obj.style.borderColor = "rgb(255,0,0)";
+        }
+        function mouseOut()
+        {
+            var obj = document.getElementById('url');
+            obj.style.borderColor = "rgb(0,0,0)";
+        }
+    </script>
+    <p id="head">Github地址</p>
+    <div id="downnav">
+        <input type="text" name="" id="url" onmouseover="mouseIn()" onmouseout="mouseOut()">
+        <button onclick="startDowned()">Downed!</button>
+    </div>
+    <textarea name="" id="msgout" cols="30" rows="10"></textarea>
+    
+</body>
+</html>
